@@ -106,10 +106,55 @@ export function receiveStories(stories){
   }
 }
 ```
-### Test action creater
+### Test redux
 reference:http://redux.js.org/docs/recipes/WritingTests.html
 1. Install Jest testing engine
 To use it together with Babel, you will need to install babel-jest:
 ```
 npm install --save-dev jest babel-jest
 ```
+2. Configure in package.json
+> in root/package.json
+Make sure you have
+```
+"babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  },
+```
+Mine already had es2015 and react set up in it, not sure when did that happen.
+Add test scrtipt too
+```
+"scripts": {
+    "test-jest": "jest'tests/redux/*.test.js'",
+    "test:watch": "npm test -- --watch"
+```
+
+and run `npm run test-jest` to run it once, or `npm run test:watch` to test on every file change.
+
+### Test Async Action Creators
+For async action creators using Redux Thunk or other middleware, it's best to completely mock the Redux store for tests. You can apply the middleware to a mock store using redux-mock-store. You can also use nock to mock the HTTP requests.
+My async action creator:
+```
+import {getStories} from '../api/stories'
+
+export function fetchStories(){
+  return getStories()
+}
+
+export function receiveStories(stories){
+  return{
+    type:'RECEIVE_STORIES',
+    stories
+  }
+}
+```
+My test:
+>create root/tests/redux/actions.test.js
+```
+
+```
+### Test action creators
+When testing action creators we want to test whether the correct action creator was called and also whether the right action was returned.
