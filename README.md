@@ -4,6 +4,8 @@ reference:
 http://redux.js.org/docs/api/createStore.html
 the repo I'm working on which this note refers to:
 https://github.com/cici-chen/Fifty-Shades-Of-Pink/tree/refactor
+for workflow logic:
+https://quickleft.com/blog/redux-plain-english-workflow/
 
 ### Install node modules
 ```
@@ -47,4 +49,67 @@ document.addEventListener('DOMContentLoaded', () => {
 I wanna see the state of the store, so I added this in the file too
 ```
 console.log('State of the entire app', store.getState())
+```
+
+### Make a component smart
+copied from: https://quickleft.com/blog/redux-plain-english-workflow/
+The notion is pretty straight-forward: if you want to wisen up your component, use the connect method from react-redux. Connecting your component gives it access to the global state object. It’s highly unlikely however, that our component needs access to everything in the state object. We can slice off only what we want the component to be aware of in the mapStateToProps function. The global state object will have various other keys in it, but in the example below, we’re only allowing questions through.
+
+Create a container for the component & import the component in it
+
+> in root/Client/Containers/StoryLibrary.js
+```
+import React from 'react'
+import { connect } from 'react-redux';
+
+import StoryLibrary from '../components/StoryLibrary.jsx'
+
+const StoryLibrary = (props) => (
+  <div>
+    <StoryLibrary stories={props.stories}/>
+  </div>
+)
+
+function mapStateToProps(state) {
+   return { stories: state.stories };
+}
+
+export default connect(mapStateToProps)(StoryLibrary)
+```
+### Dispatch an action
+Within the QuestionsPage component, we can use one of React’s component callbacks (i.e. componentWillMount) to initiate the fetching of questions. All smart components have access to the dispatch method via props.  The dispatch method allows us to execute an action creator, perform logic, and ultimately update the global state object.
+> in root/client/containers/StoryLibrary.js
+```
+import { fetchStories } from '../actions'
+
+const StoryLibrary = (props) => (
+ ...
+  componentWillMount(){
+    props.dispatch(fetchStories())
+  }
+ ...
+);
+```
+### Write the action creater
+> in root/client/actions/index.js
+```
+import {getStories} from '../api/stories'
+
+export function fetchStories(){
+  return getStories()
+}
+
+export function receiveStories(stories){
+  return{
+    type:'RECEIVE_STORIES',
+    stories
+  }
+}
+```
+### Test action creater
+reference:http://redux.js.org/docs/recipes/WritingTests.html
+1. Install Jest testing engine
+To use it together with Babel, you will need to install babel-jest:
+```
+npm install --save-dev jest babel-jest
 ```
